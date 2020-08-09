@@ -1,4 +1,4 @@
-module.exports = [
+const pieces = [
   [
     [" ", " ", " "],
     [" ", "#", " "],
@@ -41,3 +41,7 @@ module.exports = [
     [" ", "#", "#"],
   ],
 ];
+
+module.exports = pieces.map((piece, i) =>
+  piece.map((row) => row.map((v) => (v === "#" ? i + 1 : 0)))
+);

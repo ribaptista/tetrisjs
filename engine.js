@@ -5,16 +5,19 @@ const PIECES = require("./pieces");
 const randomPiece = (pieces) =>
   pieces[Math.floor(Math.random() * pieces.length)];
 
-const emptyRow = (width) => () => times(width, () => false);
+const emptyRow = (width) => () => times(width, () => 0);
 
 const emptyWorld = (w, h) => times(h, emptyRow(w));
 
 const center = (piece, width) => Math.floor((width - piece[0].length) / 2);
 
 const overlaps = (world, piece, x, y) =>
-  world.find((row, i) =>
-    row.find((cell, j) => cell && valueAt(piece, j - x, i - y))
-  ) !== undefined;
+  world.findIndex(
+    (row, i) =>
+      row.findIndex(
+        (cell, j) => cell > 0 && valueAt(piece, j - x, i - y) > 0
+      ) !== -1
+  ) !== -1;
 
 // eslint-disable-next-line no-unused-vars
 const rotateCCW = (piece) =>
@@ -27,8 +30,7 @@ const rotateCW = (piece) =>
     times(piece[0].length, (j) => piece[piece.length - 1 - j][i])
   );
 
-const dropFull = (world) =>
-  world.filter((row) => row.find((state) => !state) !== undefined);
+const dropFull = (world) => world.filter((row) => row.includes(0));
 
 const padTop = (world, h) => [
   ...times(h - world.length, emptyRow(world[0].length)),
@@ -38,7 +40,7 @@ const padTop = (world, h) => [
 const attemptMutation = (state, mutationFn) => {
   const newState = mutationFn(state);
   return overlaps(
-    uFrame(padTop(state.world, state.world.length + state.piece.length)),
+    uFrame(padTop(state.world, state.world.length + state.piece.length), 9),
     newState.piece,
     newState.x + 1,
     newState.y + state.piece.length

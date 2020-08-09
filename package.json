@@ -1,0 +1,23 @@
+{
+  "name": "tetramino",
+  "version": "1.0.0",
+  "description": "A minimal Tetris engine",
+  "main": "engine.js",
+  "scripts": {
+    "start": "node cli",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ricardo Baptista",
+  "license": "ISC",
+  "dependencies": {
+    "lodash.times": "^4.3.2",
+    "log-update": "^4.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.6.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-import": "^2.22.0",
+    "prettier": "2.0.5"
+  }
+}

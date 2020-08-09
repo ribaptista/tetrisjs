@@ -23,7 +23,7 @@ npm i
 ### Running
 
 ```
-node cli
+npm start
 ```
 
 ## Authors

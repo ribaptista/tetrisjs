@@ -2,7 +2,9 @@
 
 A minimal Tetris engine written in (mostly) functional javascript.
 
-Includes a CLI to play the game.
+Includes a CLI to play the game:
+
+![](https://github.com/ribaptista/tetramino/blob/master/demo.gif?raw=true)
 
 ## Getting Started
 

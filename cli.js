@@ -1,13 +1,15 @@
 const readline = require("readline");
 const log = require("log-update");
 const chalk = require("chalk");
-const { start, tick, control } = require("./engine.js");
+const { start, tick, control, distance } = require("./engine.js");
 const { merge, uFrame } = require("./grid");
 
 const WORLD_W = 10;
 const WORLD_H = 20;
 const BLOCK = "▓";
+const GHOST = "░";
 const SPACE = " ";
+const GHOST_VALUE = 8;
 
 const colors = [
   chalk.red,
@@ -17,13 +19,19 @@ const colors = [
   chalk.magenta,
   chalk.cyan,
   chalk.white,
+  chalk.grey,
 ];
+
+const ghost = (piece) =>
+  piece.map((row) => row.map((cell) => (cell === 0 ? 0 : GHOST_VALUE)));
 
 const render = (world) =>
   world
     .map((row) =>
       row
-        .map((state) => (state !== 0 ? colors[state - 1](BLOCK) : SPACE))
+        .map((v) =>
+          v !== 0 ? colors[v - 1](v === GHOST_VALUE ? GHOST : BLOCK) : SPACE
+        )
         .join("")
     )
     .join("\n");
@@ -37,12 +45,19 @@ const update = (newState) => {
   }
 
   state = newState;
-  log(render(uFrame(merge(state.world, state.piece, state.x, state.y), 7)));
+  const m1 = merge(
+    state.world,
+    ghost(state.piece),
+    state.x,
+    state.y + distance(state)
+  );
+  const m2 = merge(m1, state.piece, state.x, state.y);
+  log(render(uFrame(m2, 7)));
 };
 
 setInterval(() => {
   update(tick(state));
-}, 300);
+}, 1000);
 
 readline.emitKeypressEvents(process.stdin);
 process.stdin.setRawMode(true);
@@ -60,6 +75,10 @@ process.stdin.on("keypress", (key, data) => {
     case "up":
     case "down":
       update(control(state, data.name));
+      break;
+
+    case "space":
+      update(control(state, "drop"));
   }
 });
 

@@ -1,5 +1,5 @@
 const times = require("lodash.times");
-const { merge, uFrame, valueAt } = require("./grid");
+const { merge, uFrame, valueAt, pad } = require("./grid");
 const PIECES = require("./pieces");
 
 const randomPiece = (pieces) =>
@@ -30,12 +30,43 @@ const rotateCW = (piece) =>
     times(piece[0].length, (j) => piece[piece.length - 1 - j][i])
   );
 
-const dropFull = (world) => world.filter((row) => row.includes(0));
-
 const padTop = (world, h) => [
   ...times(h - world.length, emptyRow(world[0].length)),
   ...world,
 ];
+
+const crop = (world, l, t, w) =>
+  world.slice(t).map((row) => row.slice(l, l + w));
+
+const transpose = (grid) =>
+  grid[0].map((cell, j) => grid.map((_, i) => grid[i][j]));
+
+const gap = (row, pieceRow) => {
+  const trim = row.slice(
+    pieceRow.length - [...pieceRow].reverse().findIndex((v) => v !== 0)
+  );
+  return [...trim, 1].findIndex((v) => v !== 0);
+};
+
+const minGap = (grid, tPiece) =>
+  Math.min(...grid.map((row, i) => gap(row, tPiece[i])));
+
+const distance = ({ world, piece, x, y }) => {
+  const pieceH = piece.length;
+  const pieceW = piece[0].length;
+  const tPiece = transpose(piece);
+  return minGap(
+    transpose(
+      crop(
+        pad(world, pieceW, pieceH, pieceW, 0, 0),
+        x + pieceW,
+        y + pieceH,
+        pieceW
+      )
+    ).filter((_, i) => tPiece[i].findIndex((v) => v !== 0) !== -1),
+    tPiece.filter((row) => row.findIndex((v) => v !== 0) !== -1)
+  );
+};
 
 const attemptMutation = (state, mutationFn) => {
   const newState = mutationFn(state);
@@ -49,13 +80,6 @@ const attemptMutation = (state, mutationFn) => {
     : newState;
 };
 
-const handlers = {
-  left: (state) => ({ ...state, x: state.x - 1 }),
-  right: (state) => ({ ...state, x: state.x + 1 }),
-  up: (state) => ({ ...state, piece: rotateCW(state.piece) }),
-  down: (state) => ({ ...state, y: state.y + 1 }),
-};
-
 const nextPiece = (state) => {
   const piece = randomPiece(PIECES);
   return {
@@ -66,11 +90,34 @@ const nextPiece = (state) => {
   };
 };
 
+const dropFull = (world) => world.filter((row) => row.includes(0));
+
 const clean = (state) =>
   padTop(
     dropFull(merge(state.world, state.piece, state.x, state.y)),
     state.world.length
   );
+
+const settle = (state) => {
+  const next = nextPiece({
+    ...state,
+    world: clean(state),
+  });
+
+  if (overlaps(next.world, next.piece, next.x, next.y)) {
+    return { ...state, over: true };
+  }
+
+  return next;
+};
+
+const handlers = {
+  left: (state) => ({ ...state, x: state.x - 1 }),
+  right: (state) => ({ ...state, x: state.x + 1 }),
+  up: (state) => ({ ...state, piece: rotateCW(state.piece) }),
+  down: (state) => ({ ...state, y: state.y + 1 }),
+  drop: (state) => settle({ ...state, y: state.y + distance(state) }),
+};
 
 const tick = (state) => {
   const drop = attemptMutation(state, handlers.down);
@@ -78,16 +125,7 @@ const tick = (state) => {
     return drop;
   }
 
-  const next = nextPiece({
-    ...state,
-    world: clean(state),
-  });
-
-  if (overlaps(next.world, next.piece, next.x, next.y)) {
-    return { ...drop, over: true };
-  }
-
-  return next;
+  return settle(drop);
 };
 
 const control = (state, key) => attemptMutation(state, handlers[key]);
@@ -102,4 +140,5 @@ module.exports = {
   tick,
   control,
   start,
+  distance,
 };

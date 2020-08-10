@@ -9,6 +9,7 @@ const WORLD_H = 20;
 const BLOCK = "▓";
 const GHOST = "░";
 const SPACE = " ";
+const WALL_VALUE = 7;
 const GHOST_VALUE = 8;
 
 const colors = [
@@ -39,12 +40,13 @@ const render = (world) =>
 let state;
 
 const update = (newState) => {
+  state = newState;
   if (newState.over) {
+    log(render(uFrame(state.world, WALL_VALUE)));
     console.log("Game over!"); // eslint-disable-line no-console
     process.exit();
   }
 
-  state = newState;
   const m1 = merge(
     state.world,
     ghost(state.piece),
@@ -52,7 +54,7 @@ const update = (newState) => {
     state.y + distance(state)
   );
   const m2 = merge(m1, state.piece, state.x, state.y);
-  log(render(uFrame(m2, 7)));
+  log(render(uFrame(m2, WALL_VALUE)));
 };
 
 setInterval(() => {

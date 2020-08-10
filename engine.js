@@ -99,13 +99,14 @@ const clean = (state) =>
   );
 
 const settle = (state) => {
+  const cleaned = clean(state);
   const next = nextPiece({
     ...state,
-    world: clean(state),
+    world: cleaned,
   });
 
   if (overlaps(next.world, next.piece, next.x, next.y)) {
-    return { ...state, over: true };
+    return { ...next, over: true };
   }
 
   return next;

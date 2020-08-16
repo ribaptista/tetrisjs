@@ -1,7 +1,7 @@
 const readline = require("readline");
 const log = require("log-update");
 const chalk = require("chalk");
-const { start, tick, control, distance } = require("./engine.js");
+const { start, tick, control, distance, view, coords } = require("./engine.js");
 const { merge, uFrame } = require("./grid");
 
 const WORLD_W = 10;
@@ -40,20 +40,17 @@ const render = (world) =>
 let state;
 
 const update = (newState) => {
+  const world = view(newState);
   state = newState;
   if (newState.over) {
-    log(render(uFrame(state.world, WALL_VALUE)));
+    log(render(uFrame(world, WALL_VALUE)));
     console.log("Game over!"); // eslint-disable-line no-console
     process.exit();
   }
+  const { x, y } = coords(state);
 
-  const m1 = merge(
-    state.world,
-    ghost(state.piece),
-    state.x,
-    state.y + distance(state)
-  );
-  const m2 = merge(m1, state.piece, state.x, state.y);
+  const m1 = merge(world, ghost(state.piece), x, y + distance(state));
+  const m2 = merge(m1, state.piece, x, y);
   log(render(uFrame(m2, WALL_VALUE)));
 };
 

@@ -4,7 +4,7 @@ A minimal Tetris engine written in functional javascript.
 
 Includes a CLI to play the game:
 
-![](https://github.com/ribaptista/tetramino/blob/master/demo.gif?raw=true)
+![](https://github.com/ribaptista/tetramino/blob/master/demo1.gif?raw=true)
 
 ## Getting Started
 

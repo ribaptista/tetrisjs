@@ -1,6 +1,6 @@
-# Tetraminó
+# TetrisJS
 
-A minimal Tetris engine written in (mostly) functional javascript.
+A minimal Tetris engine written in functional javascript.
 
 Includes a CLI to play the game:
 
